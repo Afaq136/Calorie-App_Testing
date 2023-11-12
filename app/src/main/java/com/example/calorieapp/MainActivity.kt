@@ -66,10 +66,11 @@ class MainActivity : AppCompatActivity(), FoodFragment.OnButtonClickListener {
                 val foodArray = json.jsonArray
 
                 // Create a new instance of FoodFragment
-                val foodFragment = FoodFragment.newInstance(foodArray.toString(), "dummyParam")
+                val foodFragment = FoodFragment.newInstance(foodArray.toString(), "param2")
 
                 // Replace the current fragment with the FoodFragment
                 supportFragmentManager.beginTransaction().apply {
+                    foodFragment.setOnButtonClickListener(this@MainActivity)
                     replace(R.id.flFragment, foodFragment)
                     addToBackStack(null) // This allows the user to navigate back to the previous fragment
                     commit()
@@ -103,10 +104,12 @@ class MainActivity : AppCompatActivity(), FoodFragment.OnButtonClickListener {
     override fun onYesButtonClick() {
         // Handle Yes button click (navigate back to the main activity page)
         supportFragmentManager.popBackStack()
+
     }
 
     override fun onNoButtonClick() {
         // Handle No button click (navigate back to the main activity page)
         supportFragmentManager.popBackStack()
+
     }
 }

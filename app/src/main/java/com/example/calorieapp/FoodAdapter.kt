@@ -60,7 +60,5 @@ class FoodAdapter(val foodList: MutableList<Food>) : RecyclerView.Adapter<FoodAd
 //            .centerCrop()
 //            .into(holder.foodImageView) // in this method basically you're passing the imageView that you want to put this photo URL into
 
-
     }
-
 }
