@@ -1,245 +1,112 @@
 package com.example.calorieapp
 
-import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
-import android.widget.TextView
-import okhttp3.Call
-import okhttp3.Callback
-
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.Response
-import java.io.IOException
 
 
-class MainActivity : AppCompatActivity() {
+import com.codepath.asynchttpclient.AsyncHttpClient
+import com.codepath.asynchttpclient.RequestHeaders
+import com.codepath.asynchttpclient.RequestParams
+import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler
+//import com.example.calorieapp.FoodAdapter
+//import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.message.BasicHeader
+import okhttp3.Headers
 
-    private lateinit var foodName: String
-    private lateinit var foodCalories: String
-    private lateinit var foodFatSaturated: String
-    private lateinit var foodprotein: String
-    private lateinit var foodCarbohydrate: String
-    private lateinit var foodFiber: String
-    private lateinit var foodApiResult: String
-    private var totalCalories = 0
+class MainActivity : AppCompatActivity(), FoodFragment.OnButtonClickListener {
+
+    private lateinit var foodList: MutableList<Food>
+    private var calorieGoal: Double = 0.0
+    private lateinit var userInput: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val textView = findViewById<TextView>(R.id.apiTester)
-        val button = findViewById<Button>(R.id.search_button)
-        button.setOnClickListener {
-            val userInput = findViewById<EditText>(R.id.food_answer).text.toString()
-            getNutritionInfo(textView, userInput)
-        }
-        val switchButton = findViewById<Button>(R.id.page_switch_tester)
-        switchButton.setOnClickListener {
-            openFoodActivity()
-        }
 
-    }
-
-    private val REQUEST_CODE_FOOD_ACTIVITY = 1
-
-    private fun openFoodActivity() {
-        val intent = Intent(this, FoodActivity::class.java)
-        intent.putExtra("Name_", foodName)
-        intent.putExtra("calories_", foodCalories)
-        intent.putExtra("fat_Saturated_", foodFatSaturated)
-        intent.putExtra("protein_", foodprotein)
-        intent.putExtra("carbohydrates_", foodCarbohydrate)
-        intent.putExtra("fiber_", foodFiber)
-        intent.putExtra("total_Calories", totalCalories)
-        startActivityForResult(intent, REQUEST_CODE_FOOD_ACTIVITY)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_CODE_FOOD_ACTIVITY && resultCode == RESULT_OK) {
-            val updatedTotalCalories = data?.getIntExtra("UPDATED_TOTAL_CALORIES", 0) ?: 0
-            totalCalories = updatedTotalCalories
-            val calorieText = findViewById<TextView>(R.id.total_calories_text)
-            calorieText.text = "total Calories: ${totalCalories}"
-        }
-    }
-
-    private fun getNutritionInfo(textView: TextView, food: String) {
-        val client = OkHttpClient()
-        val url = "https://api.api-ninjas.com/v1/nutrition?query=${food}"
-        val request = Request.Builder().url(url)
-            .addHeader("x-api-key", "QpWHeJe+v61Szjf1tIYvPg==edPDwj9M04faGItV").build()
-
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                e.printStackTrace()
-                Log.d("Dog", "Failed")
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                if (response.isSuccessful) {
-                    runOnUiThread {
-                        foodApiResult = response.body!!.string()
-                        FoodItemsAsDict(foodApiResult)
-                        Log.d("Dog", "Success")
-                    }
-                }
-            }
-        })
-    }
-
-    private fun FoodItemsAsDict(word: String){
-
-        val regex = Regex("[a-zA-Z_]+|\\d+\\.\\d+")
-        val matches = regex.findAll(word)
-
-        val result = matches.map { it.value }.toList()
-
-        var hashMap : HashMap<String, String>
-                = HashMap<String, String> ()
-
-        for (i in 0 until result.size step 2) {
-            val key = result[i]
-            val value = result.getOrNull(i + 1) ?: ""
-            hashMap[key] = value
-        }
-
-        val apiTesterView = findViewById<TextView>(R.id.apiTester)
-        apiTesterView.text = hashMap.get("name")
-
-        foodName = hashMap.get("name").toString()
-        foodCalories = hashMap.get("calories").toString()
-        foodCarbohydrate = hashMap.get("carbohydrates_total_g").toString()
-        foodFiber = hashMap.get("fiber_g").toString()
-        foodFatSaturated = hashMap.get("fat_saturated_g").toString()
-        foodprotein = hashMap.get("protein_g").toString()
-
-    }
-}
-
-
-
-
-
-
-/*
-    private fun getNutritionInfo(textView: TextView, food: String) {
-        val client = OkHttpClient()
-        val url = "https://api.api-ninjas.com/v1/nutrition?query=${food}"
-        val request = Request.Builder().url(url)
-            .addHeader("x-api-key", "6F1/pYI1LJU4EpJ69LIlfA==xhRcFZ9T9BYaM9VD").build()
-
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                e.printStackTrace()
-                Log.d("Dog", "Didn't work hi:  $food")
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                if (response.isSuccessful) {
-                    runOnUiThread {
-                        Log.d("Message", "worked but not showing")
-                        val responseBody = response.body
-                        if (responseBody != null) {
-                            textView.text = responseBody.string()
-                        } else {
-                            Log.e("Error", "Response body is null")
-                        }
-                    }
-                }
-            }
-        })
-
-    }
-
- */
-
-
-
-                        // working code
-/*
-package com.example.calorieapp
-
-import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
-import android.util.Log
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.Response
-import java.io.IOException
-
-class MainActivity : AppCompatActivity() {
-
-    private lateinit var foodList : MutableList<Food>
-    private var calorieGoal : Int = 0
-    private lateinit var userInput : String
-
-    private lateinit var foodApiResult: String
-
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
         foodList = mutableListOf<Food>()
-        val textView = findViewById<TextView>(R.id.apiTester)
-        val button = findViewById<Button>(R.id.search_button)
-        button.setOnClickListener(){
-            val userInput = findViewById<EditText>(R.id.food_answer).text.toString()
-            getNutritionInfo(textView, userInput)
+
+        val searchButton = findViewById<Button>(R.id.search_button)
+        searchButton.setOnClickListener {
+            val calorieGoalEditText = findViewById<EditText>(R.id.calorie_goal_answer)
+            convertEditTextToDouble(calorieGoalEditText)
+            println(calorieGoal)
+
+            userInput = findViewById<EditText>(R.id.food_answer).text.toString()
+            getFoodInfo(userInput)
         }
     }
 
-    private fun getNutritionInfo(textView: TextView, food: String) {
-        val client = OkHttpClient()
+    private fun convertEditTextToDouble(calorieGoalEditText: EditText?) {
+        // Get the text from the EditText
+        val calorieGoalText = calorieGoalEditText?.text.toString().trim()
+
+        // Convert the text to a Double
+        calorieGoal = try {
+            calorieGoalText.toDouble()
+        } catch (e: NumberFormatException) {
+            // Handle the case where the input is not a valid Double
+            // For now, let's set it to 0.0 as a default value.
+            0.0
+        }
+    }
+
+    private fun getFoodInfo(food: String) {
+        val client = AsyncHttpClient()
+        val API_KEY = "QpWHeJe+v61Szjf1tIYvPg==edPDwj9M04faGItV"
         val url = "https://api.api-ninjas.com/v1/nutrition?query=${food}"
-        val request = Request.Builder().url(url)
-            .addHeader("x-api-key", "QpWHeJe+v61Szjf1tIYvPg==edPDwj9M04faGItV").build()
 
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                e.printStackTrace()
-                Log.d("Dog", "Failed")
-            }
+        val params = RequestParams()
+        val requestHeaders = RequestHeaders()
+        requestHeaders["x-api-key"] = API_KEY
 
-            override fun onResponse(call: Call, response: Response) {
-                if (response.isSuccessful) {
-                    runOnUiThread {
-                        foodApiResult = response.body!!.string()
-                        FoodItemsAsDict(foodApiResult)
-                        Log.d("Dog", "Success")
-                    }
+        client[url, requestHeaders, params, object : JsonHttpResponseHandler() {
+            override fun onSuccess(statusCode: Int, headers: Headers, json: JSON) {
+                val foodArray = json.jsonArray
+
+                // Create a new instance of FoodFragment
+                val foodFragment = FoodFragment.newInstance(foodArray.toString(), "dummyParam")
+
+                // Replace the current fragment with the FoodFragment
+                supportFragmentManager.beginTransaction().apply {
+                    replace(R.id.flFragment, foodFragment)
+                    addToBackStack(null) // This allows the user to navigate back to the previous fragment
+                    commit()
                 }
+
+                foodList = Food.fromJSONArray(foodArray)
+
+                Log.d("Food", "response successful$json")
+
+                // Now we need to bind food data (these Foods) to our Adapter
+                // Assuming you have a RecyclerView in your FoodFragment layout
+                // Uncomment and adjust the following lines based on your actual implementation
+                // val foodAdapter = FoodAdapter(foodList)
+                // foodRecyclerView.adapter = foodAdapter
+                // foodRecyclerView.layoutManager = LinearLayoutManager(this@MainActivity)
+                // foodRecyclerView.addItemDecoration(DividerItemDecoration(this@MainActivity, LinearLayoutManager.VERTICAL))
             }
-        })
+
+            override fun onFailure(
+                statusCode: Int,
+                headers: Headers?,
+                errorResponse: String,
+                throwable: Throwable?
+            ) {
+                Log.d("Food Error", errorResponse)
+            }
+        }]
     }
 
-    private fun FoodItemsAsDict(word: String){
-        val regex = Regex("[a-zA-Z_]+|\\d+\\.\\d+")
-        val matches = regex.findAll(word)
+    // Implement the button click methods from the interface
+    override fun onYesButtonClick() {
+        // Handle Yes button click (navigate back to the main activity page)
+        supportFragmentManager.popBackStack()
+    }
 
-        val result = matches.map { it.value }.toList()
-
-        var hashMap : HashMap<String, String>
-                = HashMap<String, String> ()
-
-        for (i in 0 until result.size step 2) {
-            val key = result[i]
-            val value = result.getOrNull(i + 1) ?: ""
-            hashMap[key] = value
-        }
-
-        val apiTesterView = findViewById<TextView>(R.id.apiTester)
-        apiTesterView.text = hashMap.get("protein_g")
+    override fun onNoButtonClick() {
+        // Handle No button click (navigate back to the main activity page)
+        supportFragmentManager.popBackStack()
     }
 }
-
- */
-
