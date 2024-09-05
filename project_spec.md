@@ -121,7 +121,16 @@ Required Feature
 ## Wireframes
 
 <!-- Add picture of your hand sketched wireframes in this section -->
-<img src="YOUR_WIREFRAME_IMAGE_URL" width=600>
+![image](https://github.com/user-attachments/assets/75e819b9-17cd-479b-8aef-09e350b18c48)
+![image](https://github.com/user-attachments/assets/59cf6821-3359-402d-b8c2-a11d3f40c873)
+![image](https://github.com/user-attachments/assets/cf054a34-b5fe-4e4f-8428-2db27d7e0ac8)
+![image](https://github.com/user-attachments/assets/b46afcee-3558-4451-a5fe-0c620ceeb24a)
+![image](https://github.com/user-attachments/assets/00732fc2-95e1-4cc8-bc91-b2288b327c09)
+
+
+
+
+
 
 
 ### [BONUS] Digital Wireframes & Mockups
