@@ -1,10 +1,12 @@
 package com.example.calorieapp
 
+import Food
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
+import android.widget.Toast
 
 
 import com.codepath.asynchttpclient.AsyncHttpClient
@@ -15,6 +17,7 @@ import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler
 //import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.message.BasicHeader
 import okhttp3.Headers
 
+// MainActivity.kt
 class MainActivity : AppCompatActivity(), FoodFragment.OnButtonClickListener {
 
     private lateinit var foodList: MutableList<Food>
@@ -30,11 +33,16 @@ class MainActivity : AppCompatActivity(), FoodFragment.OnButtonClickListener {
         val searchButton = findViewById<Button>(R.id.search_button)
         searchButton.setOnClickListener {
             val calorieGoalEditText = findViewById<EditText>(R.id.calorie_goal_answer)
-            convertEditTextToDouble(calorieGoalEditText)
-            println(calorieGoal)
 
             userInput = findViewById<EditText>(R.id.food_answer).text.toString()
-            getFoodInfo(userInput)
+
+            if (calorieGoalEditText.text.toString().isNotEmpty() && userInput.isNotEmpty()) {
+                convertEditTextToDouble(calorieGoalEditText)
+                getFoodInfo(userInput)
+            } else {
+                // Display a message or perform some action if either EditText is empty
+                Toast.makeText(this, "Please enter values in both fields", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -78,15 +86,19 @@ class MainActivity : AppCompatActivity(), FoodFragment.OnButtonClickListener {
 
                 foodList = Food.fromJSONArray(foodArray)
 
-                Log.d("Food", "response successful$json")
+                var countCalories = 0.0
+                for (food in foodList) {
+                    val caloriesValue = food.getCalories()
+                    countCalories += caloriesValue
+                }
 
-                // Now we need to bind food data (these Foods) to our Adapter
-                // Assuming you have a RecyclerView in your FoodFragment layout
-                // Uncomment and adjust the following lines based on your actual implementation
-                // val foodAdapter = FoodAdapter(foodList)
-                // foodRecyclerView.adapter = foodAdapter
-                // foodRecyclerView.layoutManager = LinearLayoutManager(this@MainActivity)
-                // foodRecyclerView.addItemDecoration(DividerItemDecoration(this@MainActivity, LinearLayoutManager.VERTICAL))
+                // Check if the calorie goal is reached
+                if (countCalories >= calorieGoal) {
+                    // Display the RecyclerViewFragment when the goal is reached
+                    displayRecyclerViewFragment(foodList)
+                }
+
+                Log.d("Food", "response successful$json")
             }
 
             override fun onFailure(
@@ -100,16 +112,29 @@ class MainActivity : AppCompatActivity(), FoodFragment.OnButtonClickListener {
         }]
     }
 
+    // checks if the calorie goal is reached after fetching food information,
+    // and if so, it displays the RecyclerViewFragment with the selected foods.
+    // If the goal is not reached, it continues with the original flow by
+    // displaying the FoodFragment.
+    private fun displayRecyclerViewFragment(selectedFoods: List<Food>) {
+        val recyclerViewFragment = RecyclerViewFragment.newInstance(selectedFoods)
+
+        // Replace the current fragment with the RecyclerViewFragment
+        supportFragmentManager.beginTransaction().apply {
+            replace(R.id.flFragment, recyclerViewFragment)
+            addToBackStack(null)
+            commit()
+        }
+    }
+
     // Implement the button click methods from the interface
     override fun onYesButtonClick() {
         // Handle Yes button click (navigate back to the main activity page)
         supportFragmentManager.popBackStack()
-
     }
 
     override fun onNoButtonClick() {
         // Handle No button click (navigate back to the main activity page)
         supportFragmentManager.popBackStack()
-
     }
 }
